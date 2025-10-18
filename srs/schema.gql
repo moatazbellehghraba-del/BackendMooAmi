@@ -1,0 +1,43 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Client {
+  _id: ID!
+  FirstName: String!
+  LastName: String!
+  PhoneNumber: String!
+  Email: String!
+  gender: String
+  DateOfBirth: DateTime
+  profile_photo: String
+  lat: Float
+  long: Float
+  loyalty_points: Float
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Query {
+  clients: [Client!]!
+}
+
+type Mutation {
+  createClient(createClientInput: CreateClientInput!): Client!
+}
+
+input CreateClientInput {
+  FirstName: String!
+  LastName: String!
+  PhoneNumber: String!
+  Email: String!
+  gender: String
+  date_of_birth: DateTime
+  profile_photo: String
+  lat: Float
+  long: Float
+  loyalty_points: Float
+}
