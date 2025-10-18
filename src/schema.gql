@@ -1,0 +1,89 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Booking {
+  _id: ID!
+  date: DateTime!
+  service: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Review {
+  _id: ID!
+  rating: Float!
+  comment: String!
+}
+
+type Location {
+  lat: Float!
+  long: Float!
+}
+
+type Client {
+  _id: ID!
+  firstName: String!
+  lastName: String!
+  phoneNumber: String!
+  bookings: [Booking!]
+  reviews: [Review!]
+  email: String!
+  gender: String
+  dateOfBirth: DateTime
+  profilePhoto: String
+  location: Location
+  loyaltyPoints: Float
+  createdAt: DateTime
+  updatedAt: DateTime
+  favorites: [String!]!
+}
+
+type Query {
+  clients: [Client!]!
+  clientbyid(id: String!): Client
+  clientbyemail(email: String!): Client
+}
+
+type Mutation {
+  createClient(createClientInput: CreateClientInput!): Client!
+  updateClient(updateClientInput: UpdateClientInput!): Client!
+  removeClient(id: String!): Boolean!
+}
+
+input CreateClientInput {
+  firstName: String!
+  lastName: String!
+  phoneNumber: String!
+  email: String!
+  password: String!
+  gender: String
+  dateOfBirth: DateTime
+  profilePhoto: String
+  location: LocationInput
+  loyaltyPoints: Float
+  favorites: [String!]
+}
+
+input LocationInput {
+  lat: Float!
+  long: Float!
+}
+
+input UpdateClientInput {
+  firstName: String
+  lastName: String
+  phoneNumber: String
+  email: String
+  password: String
+  gender: String
+  dateOfBirth: DateTime
+  profilePhoto: String
+  location: LocationInput
+  loyaltyPoints: Float
+  favorites: [String!]
+  id: String!
+}
