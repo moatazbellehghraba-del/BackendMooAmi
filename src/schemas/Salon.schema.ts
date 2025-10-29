@@ -4,6 +4,18 @@ import { Review } from "./Review.schema";
 import { Theservice } from "./Theservice.schema";
 import { Employee } from "./Employee.schema";
 
+// Define interfaces for nested objects
+interface TimeSlot {
+  open: string;
+  close: string;
+}
+
+interface OpeningHoursDay {
+  day: string;
+  slots: TimeSlot[];
+  isClosed?: boolean;
+}
+
 export type SalonDocument = Salon & Document;
 
 @Schema({ timestamps: true })
@@ -15,21 +27,19 @@ export class Salon {
   @Prop({ required: true })
   ownerName: string;
 
-
   @Prop({ required: true, unique: true, index: true })
   phoneNumber: string;
-                        // this is for the Validation of the Email ... that what i mean 
 
   @Prop({ 
-  required: true, 
-  unique: true, 
-  index: true,
-  match: [/^\S+@\S+\.\S+$/, 'Please use a valid email address']
-})
-email: string;
+    required: true, 
+    unique: true, 
+    index: true,
+    match: [/^\S+@\S+\.\S+$/, 'Please use a valid email address']
+  })
+  email: string;
 
-@Prop({ required: true, minlength: 8, select: false })
-password: string;
+  @Prop({ required: true, minlength: 8, select: false })
+  password: string;
 
   // 🔹 Address & Location
   @Prop()
@@ -37,24 +47,28 @@ password: string;
 
   @Prop({
     type: {
-      type: { type: String, enum: ['Point'], default: 'Point' },
-      coordinates: { type: [Number], index: '2dsphere', required: true }, // [long, lat]
-      street: { type: String },
-      city: { type: String },
-      country: { type: String },
+      lat: { type: Number },
+      long: { type: Number },
     },
+    default: null,
     _id: false,
   })
   location?: {
-    type: 'Point';
-    coordinates: [number, number];
-    street?: string;
-    city?: string;
-    country?: string;
+    lat: number;
+    long: number;
   };
 
+  @Prop()
+  street?: string;
+
+  @Prop()
+  city?: string;
+
+  @Prop()
+  country?: string;
+
   // 🔹 Services & Employees
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'TheService' }], default: [] })
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Theservice' }], default: [] })
   services?: Theservice[];
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Employee' }], default: [] })
@@ -63,6 +77,21 @@ password: string;
   // 🔹 Ratings & Reviews
   @Prop({ default: 0 })
   rating?: number;
+    @Prop({ default: 0 })
+  reviewCount: number;
+
+@Prop({
+  type: [
+    {
+      stars: { type: Number, required: true },
+      count: { type: Number, required: true },
+      _id: false, // prevent automatic _id
+    },
+  ],
+  default: [],
+})
+ratingDistribution: { stars: number; count: number }[];
+ // Stores counts: {1: 5, 2: 3, 3: 8, 4: 12, 5: 25}
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Review' }], default: [] })
   reviews?: Review[];
@@ -80,6 +109,24 @@ password: string;
   // 🔹 Business Details
   @Prop({ type: [String], default: [] })
   serviceTypes?: string[];
+    // 🔹 NEW: Salon Type (Male/Female/Everyone)
+  @Prop({ 
+    type: String, 
+    enum: ['MALE', 'FEMALE', 'EVERYONE'], 
+    default: 'EVERYONE' 
+  })
+  salonType?: 'MALE' | 'FEMALE' | 'EVERYONE';
+// 🔹 NEW: Price Range (budget-friendly to luxury)
+  @Prop({ 
+    type: String, 
+    enum: ['BUDGET', 'MODERATE', 'PREMIUM', 'LUXURY'], 
+    default: 'MODERATE' 
+  })
+  priceRange?: 'BUDGET' | 'MODERATE' | 'PREMIUM' | 'LUXURY';
+
+  // 🔹 NEW: Average Service Price (for sorting)
+  @Prop({ default: 0 })
+  averagePrice?: number;
 
   @Prop({ default: false })
   homeService?: boolean;
@@ -95,8 +142,9 @@ password: string;
 
   @Prop()
   description?: string;
+  
   @Prop({default:0})
-  numberoflikes?:number ; 
+  numberoflikes?: number;
 
   @Prop({ type: [String], default: [] })
   amenities?: string[];
@@ -104,9 +152,20 @@ password: string;
   @Prop()
   businessRegistrationNumber?: string;
 
-  // 🔹 Operational
-  @Prop({ type: Map, of: String, default: {} })
-  openingHours?: Record<string, string>;
+@Prop({ 
+  type: [{
+    _id: false, // Disable _id for day objects
+    day: String,
+    slots: [{
+      _id: false, // Disable _id for time slot objects
+      open: String,
+      close: String
+    }],
+    isClosed: { type: Boolean, default: false }
+  }], 
+  default: [] 
+})
+  openingHours?: OpeningHoursDay[];
 
   @Prop({ type: [String], default: [] })
   closingDays?: string[];
@@ -177,4 +236,27 @@ password: string;
 }
 
 export const SalonSchema = SchemaFactory.createForClass(Salon);
-SalonSchema.index({ 'location.coordinates': '2dsphere' });
+
+// Add this method to your SalonSchema with proper typing
+SalonSchema.methods.isOpenNow = function(): boolean {
+  if (!this.openingHours || this.openingHours.length === 0) return false;
+
+  const now = new Date();
+  const currentDay = now.toLocaleString('en-US', { weekday: 'long' }).toLowerCase(); // get the current day ... 
+  const currentTime = now.toTimeString().slice(0, 5); // "14:30"  get the current time 
+
+  const todaySchedule = this.openingHours.find((schedule: OpeningHoursDay) => 
+    schedule.day.toLowerCase() === currentDay
+  );
+
+  // If no schedule for today or explicitly closed
+  if (!todaySchedule || todaySchedule.isClosed) return false;
+
+  // If no time slots for today
+  if (!todaySchedule.slots || todaySchedule.slots.length === 0) return false;
+
+  // Check if current time falls within any slot
+  return todaySchedule.slots.some((slot: TimeSlot) => 
+    currentTime >= slot.open && currentTime <= slot.close
+  );
+};

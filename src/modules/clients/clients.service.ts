@@ -8,7 +8,7 @@ import * as bcrypt  from 'bcryptjs'
 @Injectable()
 export class ClientsService {
   constructor(
-    @InjectModel(Client.name) private clientModel: Model<ClientDocument>,
+    @InjectModel(Client.name) public clientModel: Model<ClientDocument>,
   ) {}
 
   // ✅ Create a new client
@@ -42,7 +42,7 @@ export class ClientsService {
   async findById(id: string): Promise<Client> {
     const client = await this.clientModel.findById(id)
     .populate('bookings')  // <-- add this
-    .populate('reviews')   // <-- add this
+   // .populate('reviews')   // <-- add this
     .exec();
     if (!client) throw new NotFoundException(`Client with ID ${id} not found`);
     return client;

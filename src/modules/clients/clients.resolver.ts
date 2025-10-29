@@ -4,9 +4,11 @@ import { ClientsService } from './clients.service';
 import { CreateClientInput } from './dto/create-client.dto';
 import {UpdateClientInput} from './dto/update-client.dto'
 
+
 @Resolver(()=>Client)
 export class ClientsResolver {
-    constructor(private readonly clientService: ClientsService){}
+    constructor(private readonly clientService: ClientsService ){}
+  
     // get all the Clientss 
     @Query(() => [Client], { name: 'clients' })
   async findAll() {

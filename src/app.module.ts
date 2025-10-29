@@ -9,6 +9,12 @@ import { join } from 'path';
 import { AuthModule } from './modules/auth/auth.module';
 import { ClientsModule } from './modules/clients/clients.module';
 
+import { EmployeesModule } from './modules/employees/employees.module';
+
+import { SalonsModule } from './modules/salons/salons.module';
+import { ReviewsModule } from './modules/reviews/reviews.module';
+import { ServicesModule } from './modules/services/services.module';
+
 
 @Module({
   imports: [
@@ -36,6 +42,10 @@ import { ClientsModule } from './modules/clients/clients.module';
     // Feature modules
     AuthModule,
     ClientsModule,
+    EmployeesModule,
+    SalonsModule,
+    ReviewsModule,
+    ServicesModule,
   ],
   controllers: [],
   providers: [],

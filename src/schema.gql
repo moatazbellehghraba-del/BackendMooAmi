@@ -42,16 +42,140 @@ type Client {
   favorites: [String!]!
 }
 
+type SalonLocation {
+  lat: Float!
+  long: Float!
+}
+
+type PaymentHistory {
+  amount: Float!
+  date: DateTime!
+  method: String!
+  status: String!
+}
+
+type RatingItem {
+  stars: Int!
+  count: Int!
+}
+
+type TimeSlot {
+  open: String!
+  close: String!
+}
+
+type OpeningHours {
+  day: String!
+  slots: [TimeSlot!]
+  isClosed: Boolean
+}
+
+type Salon {
+  _id: ID!
+  businessName: String!
+  ownerName: String!
+  phoneNumber: String!
+  email: String!
+  password: String
+  address: String
+  location: SalonLocation
+  street: String
+  city: String
+  country: String
+  services: [String!]
+  employees: [String!]
+  reviews: [String!]
+  rating: Float
+  reviewCount: Int!
+  ratingDistribution: [RatingItem!]
+  logo: String
+  photos: [String!]
+  portfolio: [String!]
+  serviceTypes: [String!]
+  homeService: Boolean
+  cancellationPolicy: String
+  socialLinks: [String!]
+  certificationUrl: String
+  description: String
+  numberoflikes: Float
+  amenities: [String!]
+  businessRegistrationNumber: String
+  openingHours: [OpeningHours!]
+  isOpenNow: Boolean
+  closingDays: [String!]
+  salonType: String
+  priceRange: String
+  averagePrice: Float
+  subscriptionType: String!
+  subscriptionStartDate: DateTime
+  accountExpiryDate: DateTime
+  paymentHistory: [PaymentHistory!]
+  earnings: Float
+  commissionRate: Float
+  totalBookings: Float
+  viewsCount: Float
+  autoAcceptBookings: Boolean
+  verified: Boolean
+  status: String!
+  isActiveAccount: Boolean
+  notifications: [String!]
+  supportEmail: String
+  supportPhone: String
+  identityDocumentUrl: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type PaginationInfo {
+  currentPage: Float!
+  hasNextPage: Boolean!
+  totalResults: Float!
+  totalPages: Int!
+}
+
+type FilteredSalonsResponse {
+  salons: [Salon!]!
+  pagination: PaginationInfo!
+}
+
+type ClientName {
+  firstName: String!
+  lastName: String!
+}
+
+type ReviewType {
+  _id: ID!
+  client: ClientName!
+  salon: String!
+  rating: Float!
+  comment: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 type Query {
   clients: [Client!]!
   clientbyid(id: String!): Client
   clientbyemail(email: String!): Client
+  salons: [Salon!]!
+  salon(id: ID!): Salon!
+  nearbySalons(lat: Float!, long: Float!, maxDistanceKm: Float = 50): [Salon!]!
+  filteredSalons(cities: [String!], serviceTypes: [String!], salonType: String, priceRange: [String!], lat: Float, long: Float, maxDistanceKm: Float = 10, sortBy: String = "TOP_RATED", limit: Float = 25, page: Float = 1): FilteredSalonsResponse!
+  reviewsBySalon(salonId: String!): [ReviewType!]!
+  review(reviewId: String!): ReviewType!
+  reviews: [ReviewType!]!
 }
 
 type Mutation {
   createClient(createClientInput: CreateClientInput!): Client!
   updateClient(updateClientInput: UpdateClientInput!): Client!
   removeClient(id: String!): Boolean!
+  createSalon(createSalonInput: CreateSalonDto!): Salon!
+  updateSalon(id: ID!, updateSalonInput: UpdateSalonDto!): Salon!
+  removeSalon(id: ID!): Salon!
+  createReview(createReviewInput: CreateReviewDto!): ReviewType!
+  updateReview(reviewId: String!, updateReviewInput: UpdateReviewInput!): ReviewType!
+  deleteReview(reviewId: String!): Boolean!
 }
 
 input CreateClientInput {
@@ -86,4 +210,76 @@ input UpdateClientInput {
   loyaltyPoints: Float
   favorites: [String!]
   id: String!
+}
+
+input CreateSalonDto {
+  businessName: String!
+  ownerName: String!
+  phoneNumber: String!
+  email: String!
+  password: String!
+  salonType: String = "EVERYONE"
+  priceRange: String = "MODERATE"
+  averagePrice: Float = 0
+  address: String
+  location: SalonLocationInput
+  street: String
+  numberoflikes: Float = 0
+  city: String
+  country: String
+  services: [ID!]
+  employees: [ID!]
+  logo: String
+  photos: [String!]
+  portfolio: [String!]
+  serviceTypes: [String!]
+  homeService: Boolean = false
+  cancellationPolicy: String
+  socialLinks: [String!]
+  certificationUrl: String
+  description: String
+  amenities: [String!]
+  businessRegistrationNumber: String
+  openingHours: [OpeningHoursInput!]
+  closingDays: [String!]
+  subscriptionType: String! = "FREE"
+  subscriptionStartDate: String
+  supportEmail: String
+  supportPhone: String
+  identityDocumentUrl: String
+}
+
+input SalonLocationInput {
+  lat: Float!
+  long: Float!
+}
+
+input OpeningHoursInput {
+  day: String!
+  slots: [TimeSlotInput!]
+  isClosed: Boolean = false
+}
+
+input TimeSlotInput {
+  open: String!
+  close: String!
+}
+
+input UpdateSalonDto {
+  password: String
+  status: String
+  verified: Boolean
+  autoAcceptBookings: Boolean
+}
+
+input CreateReviewDto {
+  clientId: String!
+  salonId: String!
+  rating: Int!
+  comment: String
+}
+
+input UpdateReviewInput {
+  rating: Int
+  comment: String
 }
