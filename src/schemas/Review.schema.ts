@@ -1,23 +1,30 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Field, ObjectType, ID, Float } from '@nestjs/graphql';
 import { Document, Types } from "mongoose";
-import { Salon } from "./Salon.schema";
-import { Client } from "./Client.schema";
 
-export type ReviewDocument = Review & Document ; 
+
 @Schema({timestamps: true})
 export class Review {
- @Prop({ type: Types.ObjectId, ref: 'Client', required: true })
-  user: Client
+
+
+ 
+  @Prop({ type: Types.ObjectId, ref: 'Client', required: true })
+  client: Types.ObjectId;
+
 
   @Prop({ type: Types.ObjectId, ref: 'Salon', required: true })
-  salon: Salon ; 
+  salon: Types.ObjectId;
+
 
   @Prop({ required: true, min: 1, max: 5 })
-  rating: number; // ⭐ Required
+  rating: number;
 
+  
   @Prop()
-  comment?: string; // 💬 Optional
+  comment?: string;
 
+  
 }
 
-export const ReviewSchema = SchemaFactory.createForClass(Review)
+export type ReviewDocument = Review & Document;
+export const ReviewSchema = SchemaFactory.createForClass(Review);
