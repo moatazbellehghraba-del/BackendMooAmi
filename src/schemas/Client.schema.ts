@@ -46,7 +46,9 @@ export class Client {
     lat: number;
     long: number;
   };
-
+   // store hashed refresh tokens (could be array for multi-device)
+  @Prop({ type: String, default: null })
+  currentHashedRefreshToken?: string | null;
   @Prop({ default: 0 })
   loyaltyPoints?: number;
     // 🟢 New field

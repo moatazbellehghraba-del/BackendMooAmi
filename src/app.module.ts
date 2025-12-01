@@ -14,6 +14,7 @@ import { EmployeesModule } from './modules/employees/employees.module';
 import { SalonsModule } from './modules/salons/salons.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { ServicesModule } from './modules/services/services.module';
+import { BookingsModule } from './modules/bookings/bookings.module';
 
 
 @Module({
@@ -46,6 +47,7 @@ import { ServicesModule } from './modules/services/services.module';
     SalonsModule,
     ReviewsModule,
     ServicesModule,
+    BookingsModule,
   ],
   controllers: [],
   providers: [],

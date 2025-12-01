@@ -42,6 +42,61 @@ type Client {
   favorites: [String!]!
 }
 
+type ServiceType {
+  _id: ID!
+  salon_id: String!
+  salon: Salon
+  name: String!
+  description: String
+  duration: Int!
+  price: Float!
+  category: String!
+  employees: [ID!]
+  image: String
+  homeService: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type WorkingHour {
+  day: String!
+  startTime: String!
+  endTime: String!
+}
+
+type Employee {
+  _id: ID!
+  firstName: String!
+  lastName: String!
+  phoneNumber: String!
+  mustChangePassword: Boolean!
+  temporaryPassword: String
+  email: String!
+  profileImage: String
+  bio: String
+  salon: ID!
+  assignedServices: [ID!]
+  bookings: [ID!]
+  availabilityStatus: String
+  workingHours: [WorkingHour!]
+  daysOff: [String!]
+  reviews: [ID!]
+  rating: Float
+  reviewCount: Float
+  salary: Float
+  commissionRate: Float
+  totalEarnings: Float
+  verified: Boolean
+  status: String
+  isActive: Boolean
+  joinDate: DateTime
+  lastLogin: DateTime
+  notifications: [String!]
+  assignedServicesDetails: [ServiceType!]
+  reviewDetails: [Review!]
+  isFirstLogin: Boolean!
+}
+
 type SalonLocation {
   lat: Float!
   long: Float!
@@ -82,8 +137,10 @@ type Salon {
   street: String
   city: String
   country: String
-  services: [String!]
+  services: [String!]!
+  servicesDetails: [ServiceType!]
   employees: [String!]
+  employeesDetails: [Employee!]
   reviews: [String!]
   rating: Float
   reviewCount: Int!
@@ -161,6 +218,9 @@ type Query {
   salon(id: ID!): Salon!
   nearbySalons(lat: Float!, long: Float!, maxDistanceKm: Float = 50): [Salon!]!
   filteredSalons(cities: [String!], serviceTypes: [String!], salonType: String, priceRange: [String!], lat: Float, long: Float, maxDistanceKm: Float = 10, sortBy: String = "TOP_RATED", limit: Float = 25, page: Float = 1): FilteredSalonsResponse!
+  getAllServices: [ServiceType!]!
+  getServiceById(id: ID!): ServiceType!
+  servicesBySalonId(salonId: ID!): [ServiceType!]!
   reviewsBySalon(salonId: String!): [ReviewType!]!
   review(reviewId: String!): ReviewType!
   reviews: [ReviewType!]!
@@ -173,6 +233,9 @@ type Mutation {
   createSalon(createSalonInput: CreateSalonDto!): Salon!
   updateSalon(id: ID!, updateSalonInput: UpdateSalonDto!): Salon!
   removeSalon(id: ID!): Salon!
+  createService(createServiceDto: CreateServiceDto!): ServiceType!
+  updateService(id: String!, updateServiceDto: UpdateServiceDto!): ServiceType!
+  deleteService(id: ID!): ServiceType!
   createReview(createReviewInput: CreateReviewDto!): ReviewType!
   updateReview(reviewId: String!, updateReviewInput: UpdateReviewInput!): ReviewType!
   deleteReview(reviewId: String!): Boolean!
@@ -270,6 +333,30 @@ input UpdateSalonDto {
   status: String
   verified: Boolean
   autoAcceptBookings: Boolean
+}
+
+input CreateServiceDto {
+  salon_id: String!
+  name: String!
+  description: String
+  duration: Int!
+  price: Float!
+  category: String!
+  employees: [String!]
+  image: String
+  homeService: Boolean = false
+}
+
+input UpdateServiceDto {
+  salon_id: String
+  name: String
+  description: String
+  duration: Int
+  price: Float
+  category: String
+  employees: [String!]
+  image: String
+  homeService: Boolean = false
 }
 
 input CreateReviewDto {
