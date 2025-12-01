@@ -69,10 +69,10 @@ export class Salon {
 
   // 🔹 Services & Employees
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Theservice' }], default: [] })
-  services?: Theservice[];
+  services?: Types.ObjectId[];
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Employee' }], default: [] })
-  employees?: Employee[];
+  employees?: Types.ObjectId[];
 
   // 🔹 Ratings & Reviews
   @Prop({ default: 0 })

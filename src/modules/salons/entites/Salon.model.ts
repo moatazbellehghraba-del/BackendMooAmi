@@ -1,4 +1,6 @@
 import { ObjectType, Field, ID, Float, Int } from '@nestjs/graphql';
+import { Employee } from 'src/modules/employees/entities/employee.types';
+import { ServiceType } from 'src/modules/services/entities/services.types';
 
 @ObjectType()
 export class SalonLocation {
@@ -91,12 +93,15 @@ export class Salon {
   country?: string;
 
   // 🔹 Services & Employees
-  @Field(() => [String], { nullable: true })
-  services?: string[];
+   @Field(() => [String])
+  services: string[];
+  @Field(() => [ServiceType], { nullable: true })
+  servicesDetails?: ServiceType[];
 
   @Field(() => [String], { nullable: true })
   employees?: string[];
-
+  @Field(()=>[Employee], {nullable: true})
+  employeesDetails?:Employee[]
   // 🔹 Ratings & Reviews
   @Field(() => [String], { nullable: true })
   reviews?: string[];

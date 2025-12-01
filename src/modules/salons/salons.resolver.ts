@@ -4,10 +4,15 @@ import { CreateSalonDto } from './dto/create-salon.dto';
 import { UpdateSalonDto } from './dto/update-salon.dto';
 import { Salon } from './entites/Salon.model';
 import { FilteredSalonsResponse } from './entites/filtered-salons.response';
+import { ServiceType } from '../services/entities/services.types';
+import { ServicesService } from '../services/services.service';
+import { Employee } from '../employees/entities/employee.types';
+import { EmployeesService } from '../employees/employees.service';
+import { EmployeeDetails } from '../employees/entities/employeeDetails.types';
 
 @Resolver(() => Salon)
 export class SalonsResolver {
-  constructor(private readonly salonsService: SalonsService) {}
+  constructor(private readonly EmployeeService: EmployeesService,private readonly salonsService: SalonsService , private readonly servicesService: ServicesService) {}
 
   @Mutation(() => Salon)
   createSalon(@Args('createSalonInput') createSalonInput: CreateSalonDto) {
@@ -79,4 +84,55 @@ async findFilteredSalons(
     const salonDoc = await this.salonsService.findOne(salon._id.toString());
     return (salonDoc as any).isOpenNow();
   }
+  
+ 
+//   @ResolveField(() => [ServiceType], { name: 'services' })
+// async services(@Parent() salon: Salon) {
+//   // convert salon._id to ObjectId to match DB type
+//   const services = await this.servicesService.findBySalonId(salon._id.toString());
+
+//   // map Theservice to ServiceType
+//   return services.map((s) => ({
+    
+//     name: s.name,
+//     description: s.description,
+//     duration: s.duration,
+//     price: s.price,
+//     category: s.category,
+//     employees: s.employees?.map(e => e.toString()) || [],
+//     homeService: s.homeService,
+//     image: s.image
+  
+//   }));
+// }
+  @ResolveField(() => [ServiceType], { name: 'servicesDetails' })
+async servicesDetails(@Parent() salon: Salon): Promise<ServiceType[]> {
+  const services = await this.servicesService.findBySalonId(salon._id.toString());
+  
+  return services.map((service: any) => ({
+    _id: service._id.toString(),
+    salon_id: service.salon_id.toString(),
+    name: service.name,
+    description: service.description,
+    duration: service.duration,
+    price: service.price,
+    category: service.category,
+    employees: service.employees?.map((e: any) => e.toString()) || [],
+    homeService: service.homeService,
+    image: service.image,
+    createdAt: service.createdAt, // ✅ Add this
+    updatedAt: service.updatedAt  // ✅ Add this
+  }));
+}
+   @ResolveField(()=>[Employee], {name:'employeesDetails'}) 
+   async employeesDetails(@Parent() salon:Salon) : Promise<EmployeeDetails[]> {
+    const Employees = await this.EmployeeService.findEmployeeofsalon(salon._id.toString())
+    return Employees.map((Employee : any)=>({
+      _id: Employee._id.toString() , 
+      firstName :Employee.firstName ,
+      lastName : Employee.lastName , 
+      
+    }))
+   }
+
 }

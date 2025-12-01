@@ -84,4 +84,17 @@ async update(updateClientInput: UpdateClientInput): Promise<Client> {
     if (!result) throw new NotFoundException(`Client with ID ${id} not found`);
     return true ;
   }
+  async setCurrentRefreshToken(hashed:string , userId:string) {
+    await this.clientModel.findByIdAndUpdate(userId,{currentHashedRefreshToken:hashed})
+  }
+  async removeRefreshToken(userId:string){
+    await this.clientModel.findByIdAndUpdate(userId,{currentHashedRefreshToken:null})
+  }
+  async validateUserPassword(email:string , plain:string){
+    const user = await this.findOneByEmail(email);
+    if(!user) return null ;
+    const valid= await bcrypt.compare(plain, user.password)
+    if(!valid) return null ; 
+    return user ;
+  }
 }

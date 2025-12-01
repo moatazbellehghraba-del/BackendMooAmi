@@ -12,9 +12,9 @@ export class SalonsService {
     constructor(
         @InjectModel(Salon.name) private SalonModel: Model<SalonDocument>,
     ){}
-    //------------------------------
-    // Create Salon 
-    //-------------------------------
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------- Create Salon -------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------------------------------------------------------------------------------------
     async create(createSalon : CreateSalonDto):Promise<Salon>{
         const {email , phoneNumber , password} =createSalon; 
 
@@ -33,29 +33,30 @@ export class SalonsService {
         })
         return salon.save()
     }
-    // ----------------------------
-  // 🔹 FIND ALL SALONS
-  // ----------------------------
+    // -------------------------------------------------------------------------------------------------------------------------------
+  // ------------------------------------------------------------------🔹 FIND ALL SALONS----------------------------------------------------------
+  // -------------------------------------------------------------------------------------------------------------------------------
   async findAll(): Promise<Salon[]> {
     return this.SalonModel.find().populate(['services', 'employees', 'reviews']).exec();
   }
 
-  // ----------------------------
-  // 🔹 FIND ONE SALON BY ID
-  // ----------------------------
+  // -------------------------------------------------------------------------------------------------------------------------------------------
+  //--------------------------------------------------------------- 🔹 FIND ONE SALON BY ID-------------------------------------------------------------
+  // -------------------------------------------------------------------------------------------------------------------------------------------
   async findOne(id: string): Promise<Salon> {
     if (!Types.ObjectId.isValid(id)) throw new BadRequestException('Invalid salon ID');
 
     const salon = await this.SalonModel.findById(id)
-      .populate(['services', 'employees', 'reviews'])
+      //.populate('services')
+      //.populate(['services', 'employees', 'reviews'])
       .exec();
 
     if (!salon) throw new NotFoundException('Salon not found');
     return salon;
   }
-  // ----------------------------
-  // 🔹 UPDATE SALON
-  // ----------------------------
+  // --------------------------------------------------------------------------------------------------------------------------------------------
+  //------------------------------------------------------- 🔹 UPDATE SALON--------------------------------------
+  // ---------------------------------------------------------------------------------------------------------------------------------------------
   async update(id: string, updateSalonDto: UpdateSalonDto): Promise<Salon> {
     if (!Types.ObjectId.isValid(id)) throw new BadRequestException('Invalid salon ID');
 
@@ -71,9 +72,9 @@ export class SalonsService {
     return salon.save();
   }
 
-      // ----------------------------
-  // 🔹 Delete SALON  (Soft delete)
-  // --------------------------------
+      // --------------------------------------------------------------------------------------------------------------------------------------
+  //------------------------------------------------------ 🔹 Delete SALON  (Soft delete)
+  // -----------------------------------------------------------------------------------------------------------------------------------------
   async remove(id:string):Promise<Salon> {
     if(!Types.ObjectId.isValid(id)) throw new BadRequestException('Invalid salon Id');
     const salon = await this.SalonModel.findById(id);
@@ -87,9 +88,9 @@ export class SalonsService {
     
   }
   // 
-   // ----------------------------
-  // 🔹 FIND SALONS NEAR A LOCATION (UPDATED FOR NEW LOCATION STRUCTURE)
-  // ----------------------------
+   // -----------------------------------------------------------------------------------------------------------------------------------
+  // ---------------------------------🔹 FIND SALONS NEAR A LOCATION (UPDATED FOR NEW LOCATION STRUCTURE)------------------------------------------------
+  // --------------------------------------------------------------------------------------------------------------------------------------
   async findNearby(lat: number, long: number, maxDistanceKm = 50): Promise<Salon[]> {
     // Since we're using simple lat/long now, we'll do a basic distance calculation
     // For more advanced geospatial queries, consider using a geospatial library
@@ -114,10 +115,69 @@ export class SalonsService {
       return distance <= maxDistanceKm;
     });
   }
+  async addEmployeeToSalon(salon:string, employeeid:string):Promise<Salon> {
+    const theSalon = await this.findOne(salon)
+    const updatedSalon = await this.SalonModel.findByIdAndUpdate(
+      salon , 
+      {
+        $addToSet : {
+          employees: new Types.ObjectId(employeeid)
+        }
+      },
+      {
+        new:true
+      }
+    ).exec()
+    if(!updatedSalon){
+      throw new NotFoundException("Failed to add Employee to a employees id ")
+    }
+    return updatedSalon
+  }
+  //############################################################# Add Service to salon ... add to list of serivces the id 
+  async addServiceToSalon(salonId: string, serviceId: string): Promise<Salon> {
+    const theSalon = await this.findOne(salonId);
+    
+    const updatedSalon = await this.SalonModel.findByIdAndUpdate(
+      salonId,
+      { 
+        $addToSet: { 
+          services: new Types.ObjectId(serviceId) 
+        } 
+      },
+      { new: true }
+    ).exec();
 
-  // ----------------------------
-  // 🔹 ADVANCED FILTER SEARCH (UPDATED FOR NEW LOCATION STRUCTURE)
-  // ----------------------------
+    if (!updatedSalon) {
+      throw new NotFoundException(`Failed to add service to user with ID ${salonId}`);
+    }
+
+    return updatedSalon;
+  }
+  // ###############################################################Remove Service Form list of Servicesssssss.....
+  async removeServiceFromSalon(salonId: string, serviceId: string): Promise<Salon> {
+  console.log('Removing service from salon:', serviceId, 'from salon:', salonId);
+  
+  const updatedSalon = await this.SalonModel.findByIdAndUpdate(
+    salonId,
+    { 
+      $pull: { 
+        services: new Types.ObjectId(serviceId) 
+      } 
+    },
+    { new: true }
+  ).exec();
+
+  if (!updatedSalon) {
+    throw new NotFoundException(`Failed to remove service from salon with ID ${salonId}`);
+  }
+
+  console.log('Service removed from salon successfully');
+  return updatedSalon;
+}
+
+  // ---------------------------------------------------------------------------------------------------------------------------------------------
+  // ----------------------------------🔹 ADVANCED FILTER SEARCH (UPDATED FOR NEW LOCATION STRUCTURE)-----------------------------------------------
+  // ---------------------------------------------------------------------------------------------------------------------------------------------
   async findFilteredSalons(filters: {
   cities?: string[];
   serviceTypes?: string[];
@@ -237,9 +297,9 @@ export class SalonsService {
   };
 }
 
-  // ----------------------------
-  // 🔹 CALCULATE DISTANCE USING HAVERSINE FORMULA
-  // ----------------------------
+  //----------------------------------------------------------------------------------------------- -----------------------------------------------
+  // ---------------------------------------------🔹 CALCULATE DISTANCE USING HAVERSINE FORMULA----------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------------
   private calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
     const R = 6371; // Earth's radius in kilometers
     const dLat = this.deg2rad(lat2 - lat1);
