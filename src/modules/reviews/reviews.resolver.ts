@@ -5,7 +5,7 @@ import { UpdateReviewInput } from './dto/update-review.dto';
 import { Review } from 'src/schemas/Review.schema';
 import { ClientName, ReviewType } from './entites/review.types';
 import { ClientsService } from '../clients/clients.service';
-import { Client } from '../clients/entities/Client.model';
+import { ClientEntity } from '../clients/entities/Client.model';
 import { Param } from '@nestjs/common';
 
 @Resolver(()=>ReviewType)

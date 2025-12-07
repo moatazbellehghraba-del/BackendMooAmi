@@ -56,6 +56,16 @@ export class CreateClientInput {
   @ValidateNested()
   @Type(() => LocationInput)
   location?: LocationInput;
+  @Field({nullable:true})
+  @IsOptional()
+  @IsString()
+  region ?:string ;
+  @Field({nullable:true})
+  @IsOptional()
+  @IsString()
+  country ?:string ;
+
+
 
   @Field({ nullable: true })
   @IsOptional()

@@ -24,7 +24,7 @@ type Location {
   long: Float!
 }
 
-type Client {
+type ClientEntity {
   _id: ID!
   firstName: String!
   lastName: String!
@@ -38,8 +38,15 @@ type Client {
   location: Location
   loyaltyPoints: Float
   createdAt: DateTime
+  region: String
+  country: String
   updatedAt: DateTime
   favorites: [String!]!
+}
+
+type TokenResponse {
+  accessToken: String!
+  refreshToken: String!
 }
 
 type ServiceType {
@@ -211,9 +218,10 @@ type ReviewType {
 }
 
 type Query {
-  clients: [Client!]!
-  clientbyid(id: String!): Client
-  clientbyemail(email: String!): Client
+  me: ClientEntity!
+  clients: [ClientEntity!]!
+  clientbyid(id: String!): ClientEntity
+  clientbyemail(email: String!): ClientEntity
   salons: [Salon!]!
   salon(id: ID!): Salon!
   nearbySalons(lat: Float!, long: Float!, maxDistanceKm: Float = 50): [Salon!]!
@@ -227,8 +235,11 @@ type Query {
 }
 
 type Mutation {
-  createClient(createClientInput: CreateClientInput!): Client!
-  updateClient(updateClientInput: UpdateClientInput!): Client!
+  register(input: CreateClientInput!): TokenResponse!
+  login(input: LoginClientInput!): TokenResponse!
+  refresh(userId: String!, refreshToken: String!): TokenResponse!
+  createClient(createClientInput: CreateClientInput!): ClientEntity!
+  updateClient(updateClientInput: UpdateClientInput!): ClientEntity!
   removeClient(id: String!): Boolean!
   createSalon(createSalonInput: CreateSalonDto!): Salon!
   updateSalon(id: ID!, updateSalonInput: UpdateSalonDto!): Salon!
@@ -251,6 +262,8 @@ input CreateClientInput {
   dateOfBirth: DateTime
   profilePhoto: String
   location: LocationInput
+  region: String
+  country: String
   loyaltyPoints: Float
   favorites: [String!]
 }
@@ -258,6 +271,11 @@ input CreateClientInput {
 input LocationInput {
   lat: Float!
   long: Float!
+}
+
+input LoginClientInput {
+  email: String!
+  password: String!
 }
 
 input UpdateClientInput {
@@ -270,6 +288,8 @@ input UpdateClientInput {
   dateOfBirth: DateTime
   profilePhoto: String
   location: LocationInput
+  region: String
+  country: String
   loyaltyPoints: Float
   favorites: [String!]
   id: String!

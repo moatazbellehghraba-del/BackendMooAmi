@@ -3,7 +3,9 @@ import { Document, Types } from 'mongoose';
 import { Booking } from './Booking.schema';
 import { Review } from './Review.schema';
 
-export type ClientDocument = Client & Document;
+export type ClientDocument = Client & Document& {
+  _id: Types.ObjectId;
+};
 
 @Schema({ timestamps: true })
 export class Client {
@@ -46,6 +48,10 @@ export class Client {
     lat: number;
     long: number;
   };
+  @Prop({type:String , default:null})
+  region:String ; 
+  @Prop({type:String , default:null})
+  country:String ;
    // store hashed refresh tokens (could be array for multi-device)
   @Prop({ type: String, default: null })
   currentHashedRefreshToken?: string | null;
@@ -54,6 +60,7 @@ export class Client {
     // 🟢 New field
   @Prop({ type: [String], default: [] })
   favorites: string[];
+
 }
 
 export const ClientSchema = SchemaFactory.createForClass(Client);

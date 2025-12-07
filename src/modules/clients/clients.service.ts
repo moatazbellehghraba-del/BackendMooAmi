@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { Client, ClientDocument } from 'src/schemas/Client.schema';
 import { CreateClientInput } from './dto/create-client.dto';
 import { UpdateClientInput } from './dto/update-client.dto';
+import { ClientEntity } from './entities/Client.model';
 import * as bcrypt  from 'bcryptjs'
 @Injectable()
 export class ClientsService {
@@ -12,7 +13,7 @@ export class ClientsService {
   ) {}
 
   // ✅ Create a new client
- async create(createClientInput: CreateClientInput): Promise<Client> {
+ async create(createClientInput: CreateClientInput): Promise<ClientDocument> {
   const { email, phoneNumber, location ,password } = createClientInput;
 
   // Check for duplicates
@@ -22,15 +23,17 @@ export class ClientsService {
   if (existingClient) {
     throw new BadRequestException('Client with this email or phone already exists');
   }
-  const hashedPassword = await bcrypt.hash(password, 10);
+ 
   const createdClient = new this.clientModel({
-    ...createClientInput, bookings:[] ,reviews:[], password : hashedPassword ,// store the hased password .. 
+    ...createClientInput, bookings:[] ,reviews:[],// store the hased password .. 
 
     // location will be passed directly from the input
     // no need to manually create location object anymore
   });
-
+ 
   return createdClient.save();
+
+  
 }
 
   // ✅ Get all clients
@@ -39,7 +42,7 @@ export class ClientsService {
   }
 
   // ✅ Get client by ID
-  async findById(id: string): Promise<Client> {
+  async findById(id: string): Promise<ClientDocument> {
     const client = await this.clientModel.findById(id)
     .populate('bookings')  // <-- add this
    // .populate('reviews')   // <-- add this
@@ -49,7 +52,7 @@ export class ClientsService {
   }
 
   // ✅ Find by email
-  async findOneByEmail(email: string): Promise<Client | null> {
+  async findOneByEmail(email: string): Promise<ClientDocument| null> {
     return this.clientModel.findOne({ email }).exec();
   }
 
