@@ -37,7 +37,7 @@ class Location {
   long: number;
 }
 @ObjectType()
-export class Client {
+export class ClientEntity {
   @Field(() => ID)
   _id: string;
 
@@ -74,6 +74,10 @@ export class Client {
 
   @Field({ nullable: true })
   createdAt?: Date;
+  @Field({nullable:true}) 
+  region?:string 
+  @Field({nullable:true})
+  country?:string
 
   @Field({ nullable: true })
   updatedAt?: Date;

@@ -1,38 +1,38 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
-import { Client } from './entities/Client.model';
+import { ClientEntity } from './entities/Client.model';
 import { ClientsService } from './clients.service';
 import { CreateClientInput } from './dto/create-client.dto';
 import {UpdateClientInput} from './dto/update-client.dto'
 
 
-@Resolver(()=>Client)
+@Resolver(()=>ClientEntity)
 export class ClientsResolver {
     constructor(private readonly clientService: ClientsService ){}
   
     // get all the Clientss 
-    @Query(() => [Client], { name: 'clients' })
+    @Query(() => [ClientEntity], { name: 'clients' })
   async findAll() {
     return this.clientService.findAll()
   }
   // 🟢 Get one client by ID
-  @Query(() => Client, { name: 'clientbyid', nullable: true })
+  @Query(() => ClientEntity, { name: 'clientbyid', nullable: true })
   async findOne(@Args('id', { type: () => String }) id: string) {
     return this.clientService.findById(id);
   }
     // 🟢 Get one client by email
-  @Query(() => Client, { name: 'clientbyemail', nullable: true })
+  @Query(() => ClientEntity, { name: 'clientbyemail', nullable: true })
   async findOnebyemail(@Args('email', { type: () => String }) email: string) {
     return this.clientService.findOneByEmail(email);
   }
  //  🟢 Create a client
-  @Mutation(() => Client)
+  @Mutation(() => ClientEntity)
   async createClient(
     @Args('createClientInput') createClientInput: CreateClientInput,
   ) {
     return this.clientService.create(createClientInput);
   }
    // 🟢 Update a client
-  @Mutation(() => Client)
+  @Mutation(() => ClientEntity)
   async updateClient(
     @Args('updateClientInput') updateClientInput: UpdateClientInput,
   ) {
