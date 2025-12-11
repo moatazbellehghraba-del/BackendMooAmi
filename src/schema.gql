@@ -49,6 +49,10 @@ type TokenResponse {
   refreshToken: String!
 }
 
+type RegisterResponse {
+  message: String!
+}
+
 type ServiceType {
   _id: ID!
   salon_id: String!
@@ -235,7 +239,8 @@ type Query {
 }
 
 type Mutation {
-  register(input: CreateClientInput!): TokenResponse!
+  verifyEmail(email: String!, code: String!): TokenResponse!
+  register(input: CreateClientInput!): RegisterResponse!
   login(input: LoginClientInput!): TokenResponse!
   refresh(userId: String!, refreshToken: String!): TokenResponse!
   createClient(createClientInput: CreateClientInput!): ClientEntity!

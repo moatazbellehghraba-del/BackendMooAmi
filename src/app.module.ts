@@ -17,6 +17,8 @@ import { ServicesModule } from './modules/services/services.module';
 import { BookingsModule } from './modules/bookings/bookings.module';
 import { EmailModule } from './modules/email/email.module';
 
+import { VerificationCodeModule } from './modules/verification-code/verification-code.module';
+
 
 
 
@@ -51,7 +53,9 @@ import { EmailModule } from './modules/email/email.module';
     ReviewsModule,
     ServicesModule,
     BookingsModule,
-    EmailModule
+    EmailModule,
+   VerificationCodeModule
+  
   ],
   controllers: [],
   providers: [],

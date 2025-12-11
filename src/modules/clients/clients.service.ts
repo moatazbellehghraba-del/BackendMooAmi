@@ -60,6 +60,13 @@ export class ClientsService {
   async findOneByPhone(phone: string): Promise<Client | null> {
     return this.clientModel.findOne({ phoneNumber: phone }).exec();
   }
+  async findbyEmailandVerfieeacount(email:string):Promise<ClientDocument | null> {
+    const user = await this.clientModel.findOneAndUpdate({
+      email
+    }, {isVerified:true} , {new:true})
+    if (!user) throw new BadRequestException('User not found');
+    return user
+  }
 
   // ✅ Update client
 
@@ -99,5 +106,20 @@ async update(updateClientInput: UpdateClientInput): Promise<Client> {
     const valid= await bcrypt.compare(plain, user.password)
     if(!valid) return null ; 
     return user ;
+  }
+  async setVerfication(userId:String , codeHash:String,expires:Date) {
+    return this.clientModel.findByIdAndUpdate(userId,{
+      verificationCodeHash:codeHash ,
+      verificationExpires:expires ,
+      isVerified:false ,
+
+    },{new:true}).exec()
+  }
+  async clearVerfication(userId:string){
+    return this.clientModel.findByIdAndUpdate(userId,{
+      verificationCodeHash:null ,
+      verificationExpires:null ,
+      isVerified:true,
+    },{new:true}).exec()
   }
 }

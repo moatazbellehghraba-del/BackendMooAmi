@@ -60,6 +60,9 @@ export class Client {
     // 🟢 New field
   @Prop({ type: [String], default: [] })
   favorites: string[];
+  @Prop({type:Boolean , default:false})
+  isVerified:Boolean;
+ 
 
 }
 
