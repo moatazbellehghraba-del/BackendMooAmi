@@ -1,4 +1,4 @@
-import { Args, Context, Mutation, Resolver ,Query} from '@nestjs/graphql';
+import { Args, Context, Mutation, Resolver ,Query, ObjectType, Field} from '@nestjs/graphql';
 import { AuthService } from './auth.service';
 import { CreateClientInput } from '../clients/dto/create-client.dto';
 import { LoginClientInput } from '../clients/dto/login.clinetinput';
@@ -8,20 +8,33 @@ import { GqlAuthGuard } from './gql-auth.guard';
 import { ClientEntity } from '../clients/entities/Client.model';
 import { TokenResponse } from './dto/token-response.model';
 import { CurrentUser } from './decorators/current-user.decorator';
+@ObjectType()
+export class RegisterResponse {
+  @Field()
+  message: string;
+}
 
 @Resolver()
 export class AuthResolver {
     constructor(private authservice: AuthService){}
-    @Mutation(()=>TokenResponse)
+     @Mutation(()=>TokenResponse)
+    async verifyEmail(@Args('email') email:string , @Args('code') code :string){
+        return this.authservice.verifyEmail(email,code)
+    }
+    // Old register 
+    // @Mutation(()=>TokenResponse)
+    // async register(@Args('input') input:CreateClientInput) {
+    //     const tokens=await this.authservice.register(input) ;
+    //     return tokens
+    // }
+    @Mutation(()=>RegisterResponse)
     async register(@Args('input') input:CreateClientInput) {
-        const tokens=await this.authservice.register(input) ;
-        return tokens
+        return this.authservice.register(input)
     }
     @Mutation(()=>TokenResponse) 
     async login(@Args('input') input:LoginClientInput) {
         const tokens = await this.authservice.login(input.email , input.password);
         return tokens ;
-
     }
     @Mutation(()=>TokenResponse)
     async refresh(@Args('userId')userId:string , @Args('refreshToken')refreshToken : string) {

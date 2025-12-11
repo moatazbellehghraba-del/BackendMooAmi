@@ -1,6 +1,6 @@
 import { InputType, Field, Float } from '@nestjs/graphql';
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsEmail, IsOptional, IsString, IsNumber, IsArray, ValidateNested } from 'class-validator';
+import { IsNotEmpty, IsEmail, IsOptional, IsString, IsNumber, IsArray, ValidateNested, isBoolean } from 'class-validator';
 @InputType()
 class LocationInput {
   @Field(() => Float)
@@ -77,4 +77,6 @@ export class CreateClientInput {
   @IsArray()
   @IsString({ each: true })
   favorites?: string[];
+  
+  
 }

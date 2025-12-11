@@ -4,26 +4,68 @@ import * as  bcrypt from 'bcrypt'
 import { ClientsService } from '../clients/clients.service';
 import { ConfigService } from '@nestjs/config';
 import { CreateClientInput } from '../clients/dto/create-client.dto';
+import { VerficationCodeService } from '../verification-code/verfication-code.service';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class AuthService {
    
-    constructor(private ClientService: ClientsService ,private jwtService: JwtService,
+    constructor(private ClientService: ClientsService ,private jwtService: JwtService, private verficationCodeSevice:VerficationCodeService , private emailService:EmailService,
     private config: ConfigService){}
-    async register(createClientInput: CreateClientInput) {
-        const exists = await this.ClientService.findOneByEmail(createClientInput.email)
-        if(exists)throw new BadRequestException("Email already is use") ;
-        const saltRounds = +this.config.get('BCRYPT_SALT_ROUNDS') || 12;
-        const hashed = await bcrypt.hash(createClientInput.password, saltRounds);
-        const user= await this.ClientService.create({
-            ...createClientInput , password:hashed
-        })
-        return this.getTokens(user._id.toString(),user.email)
+    // Old Register .. 
+    // async register(createClientInput: CreateClientInput) {
+    //     const exists = await this.ClientService.findOneByEmail(createClientInput.email)
+    //     if(exists)throw new BadRequestException("Email already is use") ;
+    //     const saltRounds = +this.config.get('BCRYPT_SALT_ROUNDS') || 12;
+    //     const hashed = await bcrypt.hash(createClientInput.password, saltRounds);
+    //     const user= await this.ClientService.create({
+    //         ...createClientInput , password:hashed
+    //     })
+    //     return this.getTokens(user._id.toString(),user.email)
 
+    // }
+    async register(createClientInput :CreateClientInput) {
+        const exists= await this.ClientService.findOneByEmail(createClientInput.email)
+        if (exists) throw new BadRequestException("Email already in use")
+         const saltRounds = +this.config.get('BCRYPT_SALT_ROUNDS') || 12;
+        const hashed = await bcrypt.hash(createClientInput.password, saltRounds);
+        // Crée un objet Mongoose séparé, pas le DTO
+  const userData = {
+    ...createClientInput,
+    password: hashed,
+    isVerified: false, // ✅ ici on peut mettre isVerified
+  };
+        const user= await this.ClientService.create(userData)
+        // Generate OTP code 
+        const code = await this.verficationCodeSevice.generateCode(
+            user.email
+        )
+        // Send Email ... 
+        await this.emailService.sendVerificationCode(user.email, code)
+        return {message:'Verfication email sent '}
+    }
+    async verifyEmail(email:string, code :string) {
+      const valid = await this.verficationCodeSevice.verifyCode(email,code);
+      if(!valid) throw new BadRequestException("Invalid or expired code ") ;
+      /// Mark user verified 
+    //   const user= await this.ClientService.findOneByEmail(email);
+    //   if (!user) throw new BadRequestException('User not found')
+    //   user.isVerified=true ;
+    //   await user.save()
+
+      const user = await this.ClientService.findbyEmailandVerfieeacount(email)
+      if (!user) throw new BadRequestException('User not found')
+      const tokens= await this.getTokens(user._id.toString(),user.email)
+      const hashedRefresh = await bcrypt.hash(tokens.refreshToken, +this.config.get('BCRYPT_SALT_ROUNDS') || 12);
+      await this.ClientService.setCurrentRefreshToken(hashedRefresh , user._id.toString()) ;
+      return tokens 
     }
     async login(email:string , password:string) {
         const user= await this.ClientService.validateUserPassword(email,password);
         if(!user) throw new UnauthorizedException('Invalid credentials') ;
+        if (!user.isVerified) {
+  throw new UnauthorizedException('Please verify your email before logging in');
+}
         const tokens= await this.getTokens(user._id.toString(),user.email)
         // Store hased refresh Token 
         const hashedRefresh = await bcrypt.hash(tokens.refreshToken, +this.config.get('BCRYPT_SALT_ROUNDS') || 12);
