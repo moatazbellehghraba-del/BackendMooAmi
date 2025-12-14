@@ -4,9 +4,7 @@ import { IsNotEmpty } from "class-validator";
 
 @InputType()
 export class UpdateClientInput extends PartialType(CreateClientInput) {
-    @Field(() => String)
-    @IsNotEmpty()
-    id: string;
+ 
 }
 
 //PartialType makes all the fields from createClientInput optional _ perfect for updates ... 
