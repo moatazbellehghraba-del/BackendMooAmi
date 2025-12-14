@@ -12,7 +12,7 @@ export class ClientsService {
     @InjectModel(Client.name) public clientModel: Model<ClientDocument>,
   ) {}
 
-  // ✅ Create a new client
+  //______________________________________ ✅ Create a new client___________________________________________
  async create(createClientInput: CreateClientInput): Promise<ClientDocument> {
   const { email, phoneNumber, location ,password } = createClientInput;
 
@@ -36,12 +36,12 @@ export class ClientsService {
   
 }
 
-  // ✅ Get all clients
+  // ______________________________________________✅ Get all clients______________________________________________
   async findAll(): Promise<Client[]> {
     return this.clientModel.find().sort({ createdAt: -1 }).exec();
   }
 
-  // ✅ Get client by ID
+  // ______________________________________________✅ Get client by ID
   async findById(id: string): Promise<ClientDocument> {
     const client = await this.clientModel.findById(id)
     .populate('bookings')  // <-- add this
@@ -51,12 +51,12 @@ export class ClientsService {
     return client;
   }
 
-  // ✅ Find by email
+  // ✅ __________________________________________Find by email____________________________________________________
   async findOneByEmail(email: string): Promise<ClientDocument| null> {
     return this.clientModel.findOne({ email }).exec();
   }
 
-  // ✅ Find by phone
+  //______________________________________________ ✅ Find by phone_____________________________________________________
   async findOneByPhone(phone: string): Promise<Client | null> {
     return this.clientModel.findOne({ phoneNumber: phone }).exec();
   }
@@ -68,13 +68,13 @@ export class ClientsService {
     return user
   }
 
-  // ✅ Update client
+  //_____________________________________________ ✅ Update client_____________________________________________________________
 
-async update(updateClientInput: UpdateClientInput): Promise<Client> {
-  const { id, password, location, ...updateData } = updateClientInput;
+async update(ClientId:string ,updateClientInput: UpdateClientInput): Promise<Client> {
+  const {  password, location, ...updateData } = updateClientInput;
 
-  const client = await this.clientModel.findById(id);
-  if (!client) throw new NotFoundException(`Client with ID ${id} not found`);
+  const client = await this.clientModel.findById(ClientId);
+  if (!client) throw new NotFoundException(`Client not found`);
 
   // If location is provided in the update, assign it directly
   if (location !== undefined) {
@@ -88,7 +88,7 @@ async update(updateClientInput: UpdateClientInput): Promise<Client> {
   return client.save();
 }
 
-  // ✅ Delete client
+  // ___________________________________________✅ Delete client_______________________________________________________
   async remove(id: string): Promise<boolean> {
     const result = await this.clientModel.findByIdAndDelete(id).exec();
     if (!result) throw new NotFoundException(`Client with ID ${id} not found`);
@@ -107,6 +107,7 @@ async update(updateClientInput: UpdateClientInput): Promise<Client> {
     if(!valid) return null ; 
     return user ;
   }
+  //________________________________________________________________________________________________________
   async setVerfication(userId:String , codeHash:String,expires:Date) {
     return this.clientModel.findByIdAndUpdate(userId,{
       verificationCodeHash:codeHash ,
@@ -115,6 +116,7 @@ async update(updateClientInput: UpdateClientInput): Promise<Client> {
 
     },{new:true}).exec()
   }
+  //__________________________________________________________________________________________________________________
   async clearVerfication(userId:string){
     return this.clientModel.findByIdAndUpdate(userId,{
       verificationCodeHash:null ,

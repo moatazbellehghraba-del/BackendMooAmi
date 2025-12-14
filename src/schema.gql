@@ -240,6 +240,7 @@ type Query {
 
 type Mutation {
   verifyEmail(email: String!, code: String!): TokenResponse!
+  resendVerifyEmail(email: String!): RegisterResponse!
   register(input: CreateClientInput!): RegisterResponse!
   login(input: LoginClientInput!): TokenResponse!
   refresh(userId: String!, refreshToken: String!): TokenResponse!
@@ -297,7 +298,6 @@ input UpdateClientInput {
   country: String
   loyaltyPoints: Float
   favorites: [String!]
-  id: String!
 }
 
 input CreateSalonDto {

@@ -21,6 +21,10 @@ export class AuthResolver {
     async verifyEmail(@Args('email') email:string , @Args('code') code :string){
         return this.authservice.verifyEmail(email,code)
     }
+    @Mutation(()=>RegisterResponse)
+    async resendVerifyEmail(@Args('email') email:string) {
+              return this.authservice.ResendCode(email)
+    }
     // Old register 
     // @Mutation(()=>TokenResponse)
     // async register(@Args('input') input:CreateClientInput) {

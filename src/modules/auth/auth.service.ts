@@ -24,6 +24,15 @@ export class AuthService {
     //     return this.getTokens(user._id.toString(),user.email)
 
     // }
+    async ResendCode(email:string){
+      const  exists= await this.ClientService.findOneByEmail(email) 
+      if (!exists) throw new BadRequestException("User not found")
+      const code = await this.verficationCodeSevice.generateCode(email)
+      // send new verfication email code ..... 
+      await this.emailService.sendVerificationCode(email,code)
+      return {message:'Verfication email sent'}
+
+    }
     async register(createClientInput :CreateClientInput) {
         const exists= await this.ClientService.findOneByEmail(createClientInput.email)
         if (exists) throw new BadRequestException("Email already in use")
