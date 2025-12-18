@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ObjectType, Field } from '@nestjs/graphql';
 import { ClientEntity } from './entities/Client.model';
 import { ClientsService } from './clients.service';
 import { CreateClientInput } from './dto/create-client.dto';
@@ -10,6 +10,13 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 export interface JwtUser {
   id: string;
   email: string;
+}
+@ObjectType()
+export class UpdateEmailResponse {
+  @Field()
+  success: boolean;
+  @Field()
+  message: string;
 }
 @Resolver(()=>ClientEntity)
 export class ClientsResolver {
@@ -48,6 +55,20 @@ export class ClientsResolver {
     
     return this.clientService.update(user.id, updateClientInput);
   }
+  // ____________________________________ Update email of the Client ______________________________________//
+  @Mutation(()=>UpdateEmailResponse)
+   @UseGuards(GqlAuthGuard)
+   async updateClientEmail(
+    @Args('ClientId') ClientId:string , @Args('email') email :string
+   ){
+    return this.clientService.updateEmail(ClientId , email)
+   }
+
+   @Mutation(()=>UpdateEmailResponse)
+    @UseGuards(GqlAuthGuard)
+   async verifyUpdatedEmail(@Args('email') email:string , @Args('code') code : string) {
+     return this.clientService.VerifyTheUpdatedEmail(email ,code)
+   }
   //___________________________________ 🟢 Delete a client
   @Mutation(() => Boolean)
   async removeClient(@Args('id', { type: () => String }) id: string) {

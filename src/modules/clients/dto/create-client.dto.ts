@@ -1,6 +1,6 @@
 import { InputType, Field, Float } from '@nestjs/graphql';
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsEmail, IsOptional, IsString, IsNumber, IsArray, ValidateNested, isBoolean } from 'class-validator';
+import { IsNotEmpty, IsEmail, IsOptional, IsString, IsNumber, IsArray, ValidateNested, isBoolean, isEAN, isEmail } from 'class-validator';
 @InputType()
 class LocationInput {
   @Field(() => Float)
@@ -32,6 +32,7 @@ export class CreateClientInput {
   @IsNotEmpty()
   @IsEmail()
   email: string;
+
    @Field()
   @IsNotEmpty()
   @IsString()

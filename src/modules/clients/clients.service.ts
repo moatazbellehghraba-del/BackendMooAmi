@@ -6,10 +6,13 @@ import { CreateClientInput } from './dto/create-client.dto';
 import { UpdateClientInput } from './dto/update-client.dto';
 import { ClientEntity } from './entities/Client.model';
 import * as bcrypt  from 'bcryptjs'
+import { VerficationCodeService } from '../verification-code/verfication-code.service';
+import { EmailService } from '../email/email.service';
+
 @Injectable()
 export class ClientsService {
   constructor(
-    @InjectModel(Client.name) public clientModel: Model<ClientDocument>,
+    @InjectModel(Client.name) public clientModel: Model<ClientDocument>, private  verficationCodeSevice: VerficationCodeService , private emailService : EmailService
   ) {}
 
   //______________________________________ ✅ Create a new client___________________________________________
@@ -86,6 +89,26 @@ async update(ClientId:string ,updateClientInput: UpdateClientInput): Promise<Cli
 
   Object.assign(client, updateData);
   return client.save();
+  // ---------------------------------------update the Eamil of client ____________________________//
+
+}async updateEmail(ClientId:string , email:string){
+  const client = await this.clientModel.findById(ClientId) 
+  if (!client) throw new NotFoundException('Client not found') ;
+  await this.clientModel.findByIdAndUpdate(ClientId,{pendingEmail:email} )
+  const code = await this.verficationCodeSevice.generateCode(email)
+  await this.emailService.sendVerificationCode(email,code)
+
+  return { success:true ,message:'Verfication email send'}
+}
+async VerifyTheUpdatedEmail(email:string , code:string) {
+  const valid =await this.verficationCodeSevice.verifyCode(email,code) ;
+
+  if(!valid) throw new BadRequestException("Invalid or expired Code") ;
+  const user = await this.clientModel.findOneAndUpdate({
+pendingEmail:email},{email:email , pendingEmail:null})
+  if (!user) throw new BadRequestException("User not found") 
+
+    return {success:true , message: 'logs in again with new email'}
 }
 
   // ___________________________________________✅ Delete client_______________________________________________________
