@@ -53,6 +53,11 @@ type RegisterResponse {
   message: String!
 }
 
+type UpdateEmailResponse {
+  success: Boolean!
+  message: String!
+}
+
 type ServiceType {
   _id: ID!
   salon_id: String!
@@ -246,6 +251,8 @@ type Mutation {
   refresh(userId: String!, refreshToken: String!): TokenResponse!
   createClient(createClientInput: CreateClientInput!): ClientEntity!
   updateClient(updateClientInput: UpdateClientInput!): ClientEntity!
+  updateClientEmail(ClientId: String!, email: String!): UpdateEmailResponse!
+  verifyUpdatedEmail(email: String!, code: String!): UpdateEmailResponse!
   removeClient(id: String!): Boolean!
   createSalon(createSalonInput: CreateSalonDto!): Salon!
   updateSalon(id: ID!, updateSalonInput: UpdateSalonDto!): Salon!

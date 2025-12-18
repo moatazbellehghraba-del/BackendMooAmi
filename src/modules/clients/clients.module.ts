@@ -6,10 +6,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Client, ClientSchema } from 'src/schemas/Client.schema';
 import { Booking, BookingSchema } from 'src/schemas/Booking.schema';
 import { Review, ReviewSchema } from 'src/schemas/Review.schema';
+import { VerificationCodeModule } from '../verification-code/verification-code.module';
+import { EmailModule } from '../email/email.module';
 
 @Module({
   imports:[MongooseModule.forFeature([{name:Client.name , schema:ClientSchema}
-    ,{name:Booking.name , schema:BookingSchema}])] , 
+    ,{name:Booking.name , schema:BookingSchema}]) , VerificationCodeModule, EmailModule] , 
   providers: [ClientsService, ClientsResolver],
   exports : [ClientsService]
 })

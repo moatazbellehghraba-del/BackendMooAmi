@@ -20,6 +20,13 @@ export class Client {
 
   @Prop({ required: true, unique: true, index: true })
   email: string;
+ @Prop({
+  type: String,
+  default: null,
+  unique: true,
+  sparse: true,   // ⭐ VERY IMPORTANT
+})
+pendingEmail?: string | null;
  @Prop({ required: true })  // 🆕 Add password field
   password: string;
   @Prop()
