@@ -22,9 +22,8 @@ export class Client {
   email: string;
  @Prop({
   type: String,
-  default: null,
-  unique: true,
-  sparse: true,   // ⭐ VERY IMPORTANT
+  required: false,
+  index: false
 })
 pendingEmail?: string | null;
  @Prop({ required: true })  // 🆕 Add password field
@@ -42,7 +41,8 @@ pendingEmail?: string | null;
 
   @Prop()
   profilePhoto?: string;
-
+   @Prop() // Will store Cloudinary public_id
+  profileImageId: string;
   @Prop({
     type: {
       lat: { type: Number },

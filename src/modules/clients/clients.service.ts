@@ -8,11 +8,12 @@ import { ClientEntity } from './entities/Client.model';
 import * as bcrypt  from 'bcryptjs'
 import { VerficationCodeService } from '../verification-code/verfication-code.service';
 import { EmailService } from '../email/email.service';
+import { CloudinaryService, UploadedFile } from '../shared/cloudinary/cloudinary.service';
 
 @Injectable()
 export class ClientsService {
   constructor(
-    @InjectModel(Client.name) public clientModel: Model<ClientDocument>, private  verficationCodeSevice: VerficationCodeService , private emailService : EmailService
+    @InjectModel(Client.name) public clientModel: Model<ClientDocument>, private cloudinaryService:CloudinaryService,private  verficationCodeSevice: VerficationCodeService , private emailService : EmailService
   ) {}
 
   //______________________________________ ✅ Create a new client___________________________________________
@@ -88,10 +89,46 @@ async update(ClientId:string ,updateClientInput: UpdateClientInput): Promise<Cli
   }
 
   Object.assign(client, updateData);
-  return client.save();
+  return client.save();}
+  // -----------------------------------------add Client Profile Image ..................//
+ async updateProfileImage(userId: string, file: UploadedFile) {
+    try {
+      const user = await this.clientModel.findById(userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      if (user.profileImageId) {
+        try {
+          await this.cloudinaryService.deleteImage(user.profileImageId);
+        } catch (error) {
+          console.warn('Could not delete old image:', error.message);
+        }
+      }
+
+      const { url, publicId } = await this.cloudinaryService.uploadImage(
+        file,
+        `users/${userId}/profile`,
+      );
+
+      const updatedUser = await this.clientModel.findByIdAndUpdate(
+        userId,
+        {
+          profilePhoto: url,
+          profileImageId: publicId,
+          updatedAt: new Date(),
+        },
+        { new: true },
+      );
+
+      return {success:true , message:"image updated"}
+    } catch (error) {
+      throw new Error(`Failed to update profile image: ${error.message}`);
+    }
+  }
   // ---------------------------------------update the Eamil of client ____________________________//
 
-}async updateEmail(ClientId:string , email:string){
+async updateEmail(ClientId:string , email:string){
   const client = await this.clientModel.findById(ClientId) 
   if (!client) throw new NotFoundException('Client not found') ;
   await this.clientModel.findByIdAndUpdate(ClientId,{pendingEmail:email} )

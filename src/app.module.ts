@@ -18,6 +18,7 @@ import { BookingsModule } from './modules/bookings/bookings.module';
 import { EmailModule } from './modules/email/email.module';
 
 import { VerificationCodeModule } from './modules/verification-code/verification-code.module';
+import { CloudinaryModule } from './modules/shared/cloudinary/cloudinary.module';
 
 
 
@@ -35,6 +36,7 @@ import { VerificationCodeModule } from './modules/verification-code/verification
     RedisConfig,
     // GraphQL (Code-First)
     GraphQLModule.forRoot<ApolloDriverConfig>({
+      
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       playground: {
@@ -54,6 +56,7 @@ import { VerificationCodeModule } from './modules/verification-code/verification
     ServicesModule,
     BookingsModule,
     EmailModule,
+    CloudinaryModule,
    VerificationCodeModule
   
   ],

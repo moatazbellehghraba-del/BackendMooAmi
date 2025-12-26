@@ -253,6 +253,7 @@ type Mutation {
   updateClient(updateClientInput: UpdateClientInput!): ClientEntity!
   updateClientEmail(ClientId: String!, email: String!): UpdateEmailResponse!
   verifyUpdatedEmail(email: String!, code: String!): UpdateEmailResponse!
+  updateProfileImage(file: Upload!, userId: String!): UpdateEmailResponse!
   removeClient(id: String!): Boolean!
   createSalon(createSalonInput: CreateSalonDto!): Salon!
   updateSalon(id: ID!, updateSalonInput: UpdateSalonDto!): Salon!
@@ -274,6 +275,7 @@ input CreateClientInput {
   gender: String
   dateOfBirth: DateTime
   profilePhoto: String
+  profileImageId: String
   location: LocationInput
   region: String
   country: String
@@ -300,12 +302,16 @@ input UpdateClientInput {
   gender: String
   dateOfBirth: DateTime
   profilePhoto: String
+  profileImageId: String
   location: LocationInput
   region: String
   country: String
   loyaltyPoints: Float
   favorites: [String!]
 }
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
 
 input CreateSalonDto {
   businessName: String!
