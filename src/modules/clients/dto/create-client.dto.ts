@@ -51,6 +51,10 @@ export class CreateClientInput {
   @IsOptional()
   @IsString()
   profilePhoto?: string;
+   @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+   profileImageId?: string;
 
    @Field(() => LocationInput, { nullable: true })  // ← Replace lat/long with location
   @IsOptional()
