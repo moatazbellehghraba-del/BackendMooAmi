@@ -73,7 +73,11 @@ export class AuthService {
         const user= await this.ClientService.validateUserPassword(email,password);
         if(!user) throw new UnauthorizedException('Invalid credentials') ;
         if (!user.isVerified) {
+   const code = await this.verficationCodeSevice.generateCode(email)
+        // Send Email ... 
+   await this.emailService.sendVerificationCode(email, code)
   throw new UnauthorizedException('Please verify your email before logging in');
+  
 }
         const tokens= await this.getTokens(user._id.toString(),user.email)
         // Store hased refresh Token 

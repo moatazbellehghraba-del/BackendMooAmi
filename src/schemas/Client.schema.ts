@@ -70,7 +70,6 @@ pendingEmail?: string | null;
   @Prop({type:Boolean , default:false})
   isVerified:Boolean;
  
-
 }
 
 export const ClientSchema = SchemaFactory.createForClass(Client);

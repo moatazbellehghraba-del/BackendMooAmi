@@ -126,6 +126,32 @@ async update(ClientId:string ,updateClientInput: UpdateClientInput): Promise<Cli
       throw new Error(`Failed to update profile image: ${error.message}`);
     }
   }
+  // ---------------------------------------Delete the Profile Image ---------------------------------------//
+  async deleteProfileImage(userId:string){
+    try{
+         const user = await this.clientModel.findById(userId)
+         if(!user){
+          throw new Error('User not found ') 
+         }
+         // Check if user has a profile image to delete 
+         if (!user.profileImageId ||!user.profilePhoto) {
+          throw new Error('No profile image found to delete')
+         }
+         // Delete From Cloudinary ...... 
+         await this.cloudinaryService.deleteImage(user.profileImageId)
+         // update user document to remove image references ... 
+         const updateUser = await this.clientModel.findByIdAndUpdate(
+          userId ,
+          {
+            profilePhoto : null ,
+            profileImageId : null ,
+            updatedAt: new Date(),
+          }
+         )
+    }catch(error) {
+      throw new Error(`Failed to delete profile image: ${error.message}`)
+    }
+  }
   // ---------------------------------------update the Eamil of client ____________________________//
 
 async updateEmail(ClientId:string , email:string){
