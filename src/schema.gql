@@ -254,6 +254,7 @@ type Mutation {
   updateClientEmail(ClientId: String!, email: String!): UpdateEmailResponse!
   verifyUpdatedEmail(email: String!, code: String!): UpdateEmailResponse!
   updateProfileImage(file: Upload!, userId: String!): UpdateEmailResponse!
+  deleteProfileImage(userId: String!): UpdateEmailResponse!
   removeClient(id: String!): Boolean!
   createSalon(createSalonInput: CreateSalonDto!): Salon!
   updateSalon(id: ID!, updateSalonInput: UpdateSalonDto!): Salon!

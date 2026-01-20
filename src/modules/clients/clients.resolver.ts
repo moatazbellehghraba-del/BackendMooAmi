@@ -102,6 +102,16 @@ export class ClientsResolver {
         throw new Error(`Upload failed: ${error.message}`)
        }
   }
+  // _______________________________________Delete the image of the Clinet _____________________________//
+   @Mutation(()=>UpdateEmailResponse)
+  @UseGuards(GqlAuthGuard)
+  async deleteProfileImage(@Args('userId') userId: string){
+    try{
+      return await this.clientService.deleteProfileImage(userId)
+    }catch(error) {
+      throw new Error(`Failed to delete profile image: ${error.message}`)
+    }
+  }
   //___________________________________ 🟢 Delete a client
   @Mutation(() => Boolean)
   async removeClient(@Args('id', { type: () => String }) id: string) {
