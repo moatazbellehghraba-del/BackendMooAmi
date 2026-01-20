@@ -146,8 +146,15 @@ async update(ClientId:string ,updateClientInput: UpdateClientInput): Promise<Cli
             profilePhoto : null ,
             profileImageId : null ,
             updatedAt: new Date(),
+          },
+          {
+            new: true
           }
-         )
+         ) ;
+         return {
+          success:true , message:"Profile image deleted successfully"
+         }
+      
     }catch(error) {
       throw new Error(`Failed to delete profile image: ${error.message}`)
     }
